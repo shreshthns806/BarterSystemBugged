@@ -3,7 +3,7 @@ import * as firebase from 'firebase';
 import db from '../config'
 import { StyleSheet, Text, View, Modal, ScrollView, TextInput , Image, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
 import { Header } from 'react-native-elements';
-class LoginSignupScreen extends React.Component {
+class WelcomeScreen extends React.Component {
     constructor(){
       super();
       this.state = {
@@ -195,6 +195,7 @@ class LoginSignupScreen extends React.Component {
                         'lastname' : lastname
                     })
                     Alert.alert('User added succesfully')
+                    this.props.navigation.navigate('TabNavigator')
                 }
             }
             catch(error){
@@ -222,13 +223,10 @@ class LoginSignupScreen extends React.Component {
     login = async ( email, password )=> {
         if(email && password){
             try{
-                console.log('39')
                 const response = await firebase.auth().signInWithEmailAndPassword(email,password)
-                console.log('41')
-                console.log(response)
                 if(response){
-                    console.log("logged in")
-                    Alert.alert('Login Succesfull')   
+                    Alert.alert('Login Succesfull')
+                    this.props.navigation.navigate('TabNavigator')
                 }
             }
             catch(error){
@@ -273,7 +271,6 @@ class LoginSignupScreen extends React.Component {
                     this.setState({
                         emailID:text,
                     })
-                    console.log(this.state.emailID)
                 }
             }
             value = {this.state.emailID} 
@@ -287,7 +284,6 @@ class LoginSignupScreen extends React.Component {
                     this.setState({
                         password:text,
                     })
-                    console.log(this.state.emailID)
                 }
             }
             value = {this.state.password} 
@@ -409,4 +405,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default LoginSignupScreen
+export default WelcomeScreen
