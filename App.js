@@ -2,9 +2,7 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import WelcomeScreen from './screens/LoginSignup';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
-import { createBottomTabNavigator } from 'react-navigation-tabs';
-import AddItemScreen from './screens/AddItem'
-import ExchangeItemScreen from './screens/ExchangeItem';
+import {DrawerNavigator} from './components/DrawerNavigator';
 
 export default class App extends React.Component {
   render (){
@@ -24,14 +22,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const tabNavigator = createBottomTabNavigator({
-  ExchangeItem : {screen:ExchangeItemScreen},
-  AddItem : {screen:AddItemScreen},
-})
-
 const switchNavigator = createSwitchNavigator({
   Login : {screen:WelcomeScreen},
-  TabNavigator : {screen:tabNavigator},
+  DrawerNavigator : {screen:DrawerNavigator},
 })
 
 const AppContainer = createAppContainer(switchNavigator)
