@@ -145,6 +145,8 @@ class WelcomeScreen extends React.Component {
                                     }
                                 }
                                 value = {this.state.address}
+                                multiline = {true}
+                                numberOfLines = {8}
                             ></TextInput>
                             <TouchableOpacity
                                 style = {[styles.signupButton, {marginTop:20,marginBottom:20,}]}
@@ -192,10 +194,11 @@ class WelcomeScreen extends React.Component {
                         'address' : address,
                         'contact' : mobile,
                         'username' : username,
-                        'lastname' : lastname
+                        'lastname' : lastname,
+                        'firstname' : firstname,
                     })
                     Alert.alert('User added succesfully')
-                    this.props.navigation.navigate('TabNavigator')
+                    this.props.navigation.navigate('AddItem')
                 }
             }
             catch(error){
@@ -225,8 +228,8 @@ class WelcomeScreen extends React.Component {
             try{
                 const response = await firebase.auth().signInWithEmailAndPassword(email,password)
                 if(response){
+                    this.props.navigation.navigate('AddItem')
                     Alert.alert('Login Succesfull')
-                    this.props.navigation.navigate('TabNavigator')
                 }
             }
             catch(error){
