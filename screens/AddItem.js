@@ -3,7 +3,7 @@ import * as firebase from 'firebase';
 import db from '../config'
 
 import { StyleSheet, Text, View, Modal, ScrollView, TextInput , Image, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
-import { Header } from 'react-native-elements';
+import { Header,Icon } from 'react-native-elements';
 
 export default class AddItemScreen extends React.Component {
     
@@ -43,7 +43,34 @@ export default class AddItemScreen extends React.Component {
     render(){
         return (
             <View style = {styles.container}>
-                <Text style = {styles.title}>Add Item</Text>
+                <View>
+                </View>
+                <Header
+                    backgroundColor={'#222831'}
+                    centerComponent={{
+                    text: 'Add Items',
+                    style: { color: '#32e0c4', fontSize: 20 },
+                    }}
+                    leftComponent = {
+                        <Icon 
+                            name = 'bars' 
+                            type = 'font-awesome' 
+                            color = 'white' 
+                            onPress = {
+                                ()=>{
+                                    this.props.navigation.toggleDrawer()
+                                }
+                            }
+                        ></Icon>
+                    }
+                    rightComponent = {
+                        <Icon 
+                            name = 'plus' 
+                            type = 'font-awesome' 
+                            color = '#15aabf' 
+                        ></Icon>
+                    }
+                ></Header>
                 <TextInput
                     style = {styles.textInput}
                     placeholder = 'Item Name'

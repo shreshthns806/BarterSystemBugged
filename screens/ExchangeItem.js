@@ -3,7 +3,7 @@ import * as firebase from 'firebase';
 import db from '../config'
 
 import { StyleSheet, Text, View, Modal, ScrollView, FlatList, TextInput , Image, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
-import { ListItem } from 'react-native-elements';
+import { ListItem, Header, Icon } from 'react-native-elements';
 
 
 
@@ -11,7 +11,8 @@ export default class ExchangeItemScreen extends React.Component{
     constructor(){
         super();
         this.state = {
-            itemList:[], 
+            itemList:[],
+            isComponentMounted : false
         }
     }
     getItems = ()=> {
@@ -34,6 +35,7 @@ export default class ExchangeItemScreen extends React.Component{
             })
             this.setState({
                 itemList:item,
+                isComponentMounted:true
             })
     })
     }
@@ -41,10 +43,35 @@ export default class ExchangeItemScreen extends React.Component{
     render(){
         return( 
             <View style = {styles.container}>
-                <Text style = {styles.title}>Exchange Item</Text>
+                <Header
+                    backgroundColor={'#222831'}
+                    centerComponent={{
+                    text: 'Exchange Items',
+                    style: { color: '#32e0c4', fontSize: 20 },
+                    }}
+                    leftComponent = {
+                        <Icon 
+                            name = 'bars' 
+                            type = 'font-awesome' 
+                            color = 'white' 
+                            onPress = {
+                                ()=>{
+                                    this.props.navigation.toggleDrawer()
+                                }
+                            }
+                        ></Icon>
+                    }
+                    rightComponent = {
+                        <Icon 
+                            name = 'exchange' 
+                            type = 'font-awesome' 
+                            color = '#15aabf' 
+                        ></Icon>
+                    }
+                ></Header>
                 <View style = {{flex:1}}>
                 {
-                    this.state.itemList.length == 0
+                    this.state.itemList.length == 0 && this.state.isComponentMounted == true
                     ?(
                         <Text style = {styles.buttonText}>Sorry, there are currently no requests!</Text>
                     )
