@@ -6,6 +6,7 @@ import AddItemScreen from '../screens/AddItem';
 import ExchangeItemScreen from '../screens/ExchangeItem';
 import SideBarMenu from './SideBarMenu'
 import SettingScreen from '../screens/SettingsScreen';
+import {StackNavigator} from './StackNavigator'
 export const DrawerNavigator = createDrawerNavigator(
     {
         Home : {
@@ -32,7 +33,7 @@ export const DrawerNavigator = createDrawerNavigator(
             }
         },
         ExchangeItems : {
-            screen:ExchangeItemScreen,
+            screen:StackNavigator,
             navigationOptions:{
                 drawerIcon :
                     <Icon

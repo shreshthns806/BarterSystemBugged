@@ -95,6 +95,9 @@ export default class ExchangeItemScreen extends React.Component{
                                         rightElement = {
                                             <TouchableOpacity
                                                 style = {styles.button}
+                                                onPress = {()=>{
+                                                    this.props.navigation.navigate('ItemDetailScreen')
+                                                }}
                                             >
                                                 <Text style = {styles.buttonText}>
                                                     View
