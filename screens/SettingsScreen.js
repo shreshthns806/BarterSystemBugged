@@ -80,11 +80,12 @@ export default class SettingScreen extends React.Component {
                         ></Icon>
                     }
                     rightComponent = {
-                        <Icon 
-                            name = 'exchange' 
+                        <Icon
+                            name = 'cogs' 
                             type = 'font-awesome' 
-                            color = '#15aabf' 
-                        ></Icon>
+                            color = '#15aabf'
+                            size = {20}
+                        />
                     }
                 ></Header>
                 <ScrollView>

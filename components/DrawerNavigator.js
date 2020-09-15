@@ -4,6 +4,7 @@ import {BottomTabNavigator} from './BottomTabNavigator'
 import {Icon} from 'react-native-elements';
 import AddItemScreen from '../screens/AddItem';
 import ExchangeItemScreen from '../screens/ExchangeItem';
+import MyBarters from '../screens/MyBarters'
 import SideBarMenu from './SideBarMenu'
 import SettingScreen from '../screens/SettingsScreen';
 import {StackNavigator} from './StackNavigator'
@@ -30,6 +31,18 @@ export const DrawerNavigator = createDrawerNavigator(
                     color = 'black'
                 />,
                 drawerLabel : "Add Items"
+            }
+        },
+        MyBarters: {
+            screen: MyBarters,
+            navigationOptions:{
+                drawerIcon :
+                <Icon
+                    name = 'child' 
+                    type = 'font-awesome' 
+                    color = 'black'
+                />,
+                drawerLabel : "My Barters"
             }
         },
         ExchangeItems : {

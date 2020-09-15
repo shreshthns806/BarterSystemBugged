@@ -7,37 +7,31 @@ import { ListItem, Header, Icon } from 'react-native-elements';
 
 
 
-export default class ExchangeItemScreen extends React.Component{
+export default class MyBarters extends React.Component{
     constructor(){
         super();
         this.state = {
-            itemList:[],
-            isComponentMounted : false
+            allUserBarters : null,
+            currentEmailID : firebase.auth().currentUser.email
         }
     }
-    getItems = async ()=> {
-        console.log('18')  
-        this.ref = await db.collection('items').onSnapshot((snapshot)=> {
-            var item = snapshot.docs.map((document)=>{
-                {return document.data()}
+
+    getAllUserBarters = async ()=> {
+        const currentEmailID = this.state.currentEmailID
+        var query = await db.collection('AllBarters')
+        .where("itemExchangerID","==",currentEmailID).onSnapshot(snapshot => {
+            var item =snapshot.docs.map(document => {
+                return document.data()
             })
             this.setState({
-                itemList:item,
+                allUserBarters : item
             })
-    })
+            console.log(this.state.allUserBarters)
+        })
     }
 
-    componentDidMount(){
-        //this.getItems
-        this.ref = db.collection('items').onSnapshot((snapshot)=> {
-            var item = snapshot.docs.map((document)=>{
-                {return document.data()}
-            })
-            this.setState({
-                itemList:item,
-                isComponentMounted:true
-            })
-    })
+    componentDidMount = ()=>{
+        this.getAllUserBarters()
     }
 
     render(){
@@ -46,7 +40,7 @@ export default class ExchangeItemScreen extends React.Component{
                 <Header
                     backgroundColor={'#222831'}
                     centerComponent={{
-                    text: 'Exchange Items',
+                    text: 'My Barters',
                     style: { color: '#32e0c4', fontSize: 20 },
                     }}
                     leftComponent = {
@@ -63,55 +57,34 @@ export default class ExchangeItemScreen extends React.Component{
                     }
                     rightComponent = {
                         <Icon 
-                            name = 'exchange' 
+                            name = 'child' 
                             type = 'font-awesome' 
                             color = '#15aabf' 
                         ></Icon>
                     }
                 ></Header>
                 <View style = {{flex:1}}>
-                {
-                    this.state.itemList.length == 0 && this.state.isComponentMounted == true
-                    ?(
-                        <Text style = {styles.buttonText}>Sorry, there are currently no requests!</Text>
-                    )
                     
-                    :(
                         <FlatList
                             keyExtractor = {(item,index)=>{
-                                return index.toString();
+                                return (index.toString()    )
                             }}
-                            data = {this.state.itemList}
-                            renderItem = {
-                                ({item, i})=>{
-                                    return(
-                                    <ListItem
+                            data = {this.state.allUserBarters}
+                            renderItem = {({item,i})=>{
+                                <ListItem
                                         key = {i}
-                                        title = {item.item_name}
-                                        subtitle = {item.item_description}
+                                        title = {item.itemName}
+                                        subtitle = {item.itemAdderID}
                                         titleStyle = {{color:'#32e0c4'}}
                                         subtitleStyle = {{color : '#eeeeee'}}
                                         containerStyle = {{backgroundColor : '#393e46'}}
-                                        rightElement = {
-                                            <TouchableOpacity
-                                                style = {styles.button}
-                                                onPress = {()=>{
-                                                    this.props.navigation.navigate('ItemDetailScreen',{"details":item})
-                                                }}
-                                            >
-                                                <Text style = {styles.buttonText}>
-                                                    View
-                                                </Text>
-                                            </TouchableOpacity>
-                                        }
                                         bottomDivider
-                                    ></ListItem>)
-                                }
-                                
+                                    ></ListItem>
                             }
-                        ></FlatList>
-                    )
-                }
+                        }
+                        >
+                            
+                        </FlatList>
                 </View>
             </View>
         )}
