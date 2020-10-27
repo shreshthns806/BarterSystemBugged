@@ -3,7 +3,7 @@ import * as firebase from 'firebase';
 import db from '../config'
 
 import { StyleSheet, Text, View, Modal, ScrollView, TextInput , Image, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
-import { Header,Icon } from 'react-native-elements';
+import { Header,Icon, Badge } from 'react-native-elements';
 
 export default class SettingScreen extends React.Component {
     
@@ -17,9 +17,21 @@ export default class SettingScreen extends React.Component {
             userName      : '',
             userEmail     : firebase.auth().currentUser.email,
             docID         : '',
+            value:'',
         }
     }
-
+    getNumberOfUnreadNotifications = ()=> {
+        db.collection('allNotifications').where('notification_status','==','unread')
+        .where("targetedID",'==',this.state.userEmail).onSnapshot((snapshot)=>{
+          var unreadNotifications = snapshot.docs.map((doc)=>{
+            return doc.data();
+          })
+          this.setState({
+            value:unreadNotifications.length
+          })
+        }
+        )
+    }
     updateProfile = ()=> {
         if (this.state.userName!='' && this.state.userContact!='' && this.state.userAddress!='' && this.state.userFirstName!='' && this.state.userLastName!=''){
             db.collection('users').doc(this.state.docID).update({
@@ -29,6 +41,7 @@ export default class SettingScreen extends React.Component {
                 lastname : this.state.userLastName,
                 username : this.state.userName,
             })
+            console.log(this.state.address)
         }
         else {
             Alert.alert('Please fill all Details')
@@ -36,7 +49,6 @@ export default class SettingScreen extends React.Component {
     }
 
     getCredentials = (email)=> {
-        console.log(this.state.userEmail)
         db.collection('users').where("email","==",email).get().then((snapshot)=>{
             snapshot.forEach((doc)=>{
                 var data = doc.data();
@@ -54,8 +66,7 @@ export default class SettingScreen extends React.Component {
 
     componentDidMount(){
         this.getCredentials(this.state.userEmail)
-        console.log(this.state.userFirstName,this.state.userLastName,this.state.userName,this.state.userAddress,this.state.userContact)
-        console.log('Joi')
+        this.getNumberOfUnreadNotifications()
     }
 
     render(){
@@ -80,12 +91,21 @@ export default class SettingScreen extends React.Component {
                         ></Icon>
                     }
                     rightComponent = {
-                        <Icon
-                            name = 'cogs' 
-                            type = 'font-awesome' 
-                            color = '#15aabf'
-                            size = {20}
-                        />
+                        <View>
+    <Icon
+      name = 'bell'
+      type = 'font-awesome'
+      color = "#15aabf"
+      size = {25}
+      onPress = {()=>{
+        this.props.navigation.navigate('Notifications')
+      }}
+    ></Icon>
+    <Badge
+      value = {this.state.value}
+      containerStyle = {{position : 'absolute', top:-4, right:-4}}
+    ></Badge>
+</View>
                     }
                 ></Header>
                 <ScrollView>

@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import AddItemScreen from '../screens/AddItem'
 import ExchangeItemScreen from '../screens/ExchangeItem';
+import {StackNavigator} from './StackNavigator'
 import {Icon} from 'react-native-elements'
 export const BottomTabNavigator = createBottomTabNavigator({
     AddItem : {

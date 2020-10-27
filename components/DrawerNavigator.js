@@ -2,12 +2,11 @@ import React from 'react';
 import {createDrawerNavigator} from 'react-navigation-drawer'
 import {BottomTabNavigator} from './BottomTabNavigator'
 import {Icon} from 'react-native-elements';
-import AddItemScreen from '../screens/AddItem';
-import ExchangeItemScreen from '../screens/ExchangeItem';
 import MyBarters from '../screens/MyBarters'
 import SideBarMenu from './SideBarMenu'
 import SettingScreen from '../screens/SettingsScreen';
-import {StackNavigator} from './StackNavigator'
+import NotifcationScreen from '../screens/Notifications';
+import ItemDetailScreen from '../screens/ItemDetailScreen'
 export const DrawerNavigator = createDrawerNavigator(
     {
         Home : {
@@ -21,18 +20,6 @@ export const DrawerNavigator = createDrawerNavigator(
                 />,
             }
         },
-        AddItems: {
-            screen: AddItemScreen,
-            navigationOptions:{
-                drawerIcon :
-                <Icon
-                    name = 'plus' 
-                    type = 'font-awesome' 
-                    color = 'black'
-                />,
-                drawerLabel : "Add Items"
-            }
-        },
         MyBarters: {
             screen: MyBarters,
             navigationOptions:{
@@ -43,18 +30,6 @@ export const DrawerNavigator = createDrawerNavigator(
                     color = 'black'
                 />,
                 drawerLabel : "My Barters"
-            }
-        },
-        ExchangeItems : {
-            screen:StackNavigator,
-            navigationOptions:{
-                drawerIcon :
-                    <Icon
-                        name = 'exchange' 
-                        type = 'font-awesome' 
-                        color = 'black'
-                    />,
-                drawerLabel : "Exchange Items"
             }
         },
         SettingScreen : {
@@ -70,6 +45,25 @@ export const DrawerNavigator = createDrawerNavigator(
                 drawerLabel : "Settings"
             }
         },
+        Notifications : {
+            screen: NotifcationScreen,
+            navigationOptions:{
+                drawerIcon :
+                    <Icon
+                        name = 'bell' 
+                        type = 'font-awesome' 
+                        color = 'black'
+                    />,
+                drawerLabel : "Notifications"
+            }
+        },
+        ItemDetailScreen : {
+            screen : ItemDetailScreen,            
+        navigationOptions:{
+            drawerLabel : " "
+        }
+        },
+
     },
     {
         contentComponent : SideBarMenu

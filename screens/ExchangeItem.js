@@ -1,9 +1,8 @@
 import * as React from 'react';
 import * as firebase from 'firebase';
 import db from '../config'
-
 import { StyleSheet, Text, View, Modal, ScrollView, FlatList, TextInput , Image, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
-import { ListItem, Header, Icon } from 'react-native-elements';
+import { ListItem, Header, Icon, Badge } from 'react-native-elements';
 
 
 
@@ -12,11 +11,24 @@ export default class ExchangeItemScreen extends React.Component{
         super();
         this.state = {
             itemList:[],
-            isComponentMounted : false
+            isComponentMounted : false,
+            userID : firebase.auth().currentUser.email,
+            value:'',
         }
     }
+    getNumberOfUnreadNotifications = ()=> {
+        db.collection('allNotifications').where('notification_status','==','unread')
+        .where("targetedID",'==',this.state.userID).onSnapshot((snapshot)=>{
+          var unreadNotifications = snapshot.docs.map((doc)=>{
+            return doc.data();
+          })
+          this.setState({
+            value:unreadNotifications.length
+          })
+        }
+        )
+    }
     getItems = async ()=> {
-        console.log('18')  
         this.ref = await db.collection('items').onSnapshot((snapshot)=> {
             var item = snapshot.docs.map((document)=>{
                 {return document.data()}
@@ -27,7 +39,9 @@ export default class ExchangeItemScreen extends React.Component{
     })
     }
 
+
     componentDidMount(){
+        this.getNumberOfUnreadNotifications()
         //this.getItems
         this.ref = db.collection('items').onSnapshot((snapshot)=> {
             var item = snapshot.docs.map((document)=>{
@@ -62,11 +76,21 @@ export default class ExchangeItemScreen extends React.Component{
                         ></Icon>
                     }
                     rightComponent = {
-                        <Icon 
-                            name = 'exchange' 
-                            type = 'font-awesome' 
-                            color = '#15aabf' 
-                        ></Icon>
+                        <View>
+    <Icon
+      name = 'bell'
+      type = 'font-awesome'
+      color = "#15aabf"
+      size = {25}
+      onPress = {()=>{
+        this.props.navigation.navigate('Notifications')
+      }}
+    ></Icon>
+    <Badge
+      value = {this.state.value}
+      containerStyle = {{position : 'absolute', top:-4, right:-4}}
+    ></Badge>
+</View>
                     }
                 ></Header>
                 <View style = {{flex:1}}>
@@ -96,7 +120,8 @@ export default class ExchangeItemScreen extends React.Component{
                                             <TouchableOpacity
                                                 style = {styles.button}
                                                 onPress = {()=>{
-                                                    this.props.navigation.navigate('ItemDetailScreen',{"details":item})
+                                                    this.props.navigation.navigate('ItemDetailScreen',{'details':item})
+                                                    console.log('ButtonPress')
                                                 }}
                                             >
                                                 <Text style = {styles.buttonText}>

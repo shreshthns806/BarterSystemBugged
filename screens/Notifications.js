@@ -1,24 +1,65 @@
 import * as React from 'react';
 import * as firebase from 'firebase';
 import db from '../config'
-import { StyleSheet, Text, View, Modal, ScrollView, FlatList, TextInput , Image, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
-import { ListItem, Header, Icon, Badge } from 'react-native-elements';
+    import {
+        Animated,
+        Dimensions,
+        StyleSheet,
+        Text,
+        TouchableHighlight,
+        View,
+        FlatList,
+    } from 'react-native';
+    import { ListItem, Header, Icon, Badge } from 'react-native-elements';
 
-
-
-export default class MyBarters extends React.Component{
+    import { SwipeListView } from 'react-native-swipe-list-view';
+export default class NotificationScreen extends React.Component {
+    
     constructor(){
-        super();
+        super()
         this.state = {
-            allUserBarters : [],
-            currentUsername : '',
-            itemAdderID:'',
-            itemName:'',
             currentEmailID : firebase.auth().currentUser.email,
-            docID:'',
+            allUnreadNotifications: [],
             value:'',
+            notificationID : ''
         }
     }
+    renderHiddenItem = () => (
+        <View style={styles.rowBack}>
+            <View style={[styles.backRightBtn, styles.backRightBtnRight]}>
+                <Text style={styles.backTextWhite}></Text>
+            </View>
+        </View>
+    );
+    updateMarkAsread =(notification)=>{
+        const email = firebase.auth().currentUser.email
+        //console.log(notification)
+        db.collection('allNotifications')
+            .where('notification_status','==','unread')
+            .where('targetedID','==',email)
+            .where('notification_message','==',notification.notification_message).get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    this.setState({
+                        notificationID:doc.id
+                    })
+                    //console.log(doc.id)
+                })
+            })
+      }
+    renderItem = data => (
+        <Animated.View>
+        <ListItem
+        title = {data.item.itemName}
+        subtitle = {data.item.notification_message}
+        titleStyle = {{color : '#32e0c4'}}
+        subtitleStyle = {{color:'#eeeeee'}}
+        containerStyle = {{backgroundColor : '#393e46'}}
+        bottomDivider
+    ></ListItem>
+
+        </Animated.View>
+    )
+
     getNumberOfUnreadNotifications = ()=> {
         db.collection('allNotifications').where('notification_status','==','unread')
         .where("targetedID",'==',this.state.currentEmailID).onSnapshot((snapshot)=>{
@@ -31,82 +72,43 @@ export default class MyBarters extends React.Component{
         }
         )
     }
-    getCurrentUsername = () => {
-        const currentUserID = this.state.currentEmailID
-        const query = db.collection('users').where("email","==",currentUserID).get().then(snapshot => {
-            snapshot.forEach((doc)=>{
-                var data = doc.data();
-                this.setState({
-                    currentUsername:data.username,
-                })
-            })
-        })
-        
-    }
-    addNotification =  (item)=> {
-        
+    onSwipeValueChange = swipeData => {
+        var allNotifications = this.state.allUnreadNotifications
+          const {key,value} = swipeData;
+    
+          if(value < -Dimensions.get('window').width){
+            const newData = [...allNotifications];
 
-        const currentUserID = this.state.currentEmailID
-        const itemName = item.itemName
-        const currentUsername = this.state.currentUsername
-        const message = currentUsername + ' with Email as ' + currentUserID + ' has sent you the item '+ itemName+'.'
-        const itemAdderID = item.itemAdderID
-        db.collection('allNotifications').add({
-            'notification_message' : message,
-            'senderID' : currentUserID,
-            'targetedID' : itemAdderID,
-            'notification_status':'unread',
-            'itemName' : itemName
-        })
-
-        
-
-    }
-
-    updateBookStatus = async (item) => {
-        
-        const itemID = item.itemID
-        
-        await db.collection('AllBarters').where('itemID','==',itemID).get().then(snapshot => {
-            snapshot.forEach(doc => {
-                this.setState({
-                    docID:doc.id
-                })
-            })
-        })
-
-        const docID = this.state.docID
-        
-            db.collection('AllBarters').doc(docID).update({
-                itemStatus : 'itemSent'
-            })
-        
-    }
-
-    componentDidMount = ()=>{
+            const prevIndex = allNotifications.findIndex(item => item.key === key);
+            this.updateMarkAsread(allNotifications[prevIndex]);
+            console.log(allNotifications[prevIndex])
+            newData.splice(prevIndex, 1);
+            
+        };
+    };
+    componentDidMount () {
         this.getNumberOfUnreadNotifications()
         const currentEmailID = this.state.currentEmailID
-        var query = db.collection('AllBarters')
-        .where("itemExchangerID","==",currentEmailID).onSnapshot(snapshot => {
-            var item =snapshot.docs.map(document => {
+            
+        var query1 = db.collection('allNotifications')
+        .where('notification_status','==','unread')
+        .where('targetedID','==',currentEmailID).onSnapshot(snapshot => {
+            var item = snapshot.docs.map(document => {
                 return document.data()
             })
             this.setState({
-                allUserBarters : item,
+                allUnreadNotifications : item
             })
         })
-        this.getCurrentUsername();
     }
 
-
-
     render(){
-        return( 
+        return (
             <View style = {styles.container}>
                 <Header
                     backgroundColor={'#222831'}
                     centerComponent={{
-                    text: 'My Barters',
+                    text: 'Notifications',
                     style: { color: '#32e0c4', fontSize: 20 },
                     }}
                     leftComponent = {
@@ -140,8 +142,8 @@ export default class MyBarters extends React.Component{
                     }
                 ></Header>
                 <View style = {{flex:1}}>
-                    <FlatList
-                        data = {this.state.allUserBarters}
+                <FlatList
+                        data = {this.state.allUnreadNotifications}
                         keyExtractor = {(item,index)=>{
                             return (index.toString())
                         }}
@@ -149,24 +151,11 @@ export default class MyBarters extends React.Component{
                             return(
                                 <ListItem
                                     key = {i}
-                                    title = {item.itemName}
-                                    subtitle = {item.itemAdderID}
+                                    title = {item.notification_message}
+                                    subtitle = {item.notification_message}
                                     titleStyle = {{color:'#32e0c4'}}
                                     subtitleStyle = {{color : '#eeeeee'}}
                                     containerStyle = {{backgroundColor : '#393e46'}}
-                                    rightElement = {
-                                        <TouchableOpacity
-                                            style = {styles.button}
-                                            onPress = {()=>{
-                                                this.addNotification(item)
-                                                this.updateBookStatus(item)
-                                            }}
-                                        >
-                                            <Text style = {styles.buttonText}>
-                                                Exchange
-                                            </Text>
-                                        </TouchableOpacity>
-                                    }
                                     bottomDivider
                                 ></ListItem>
                             )
@@ -174,11 +163,9 @@ export default class MyBarters extends React.Component{
                     ></FlatList>
                 </View>
             </View>
-        )}
-        
-    
+        )
+    }
 }
-
 
 const styles = StyleSheet.create({
     container: {
@@ -188,8 +175,9 @@ const styles = StyleSheet.create({
         width:'100%'
     },
     title:{
+        backgroundColor:'#222831',
         color:'#32e0c4',
-        fontSize:13,
+        fontSize:23,
         padding:5,
         alignContent:'center',
         textAlign:'center',
@@ -202,7 +190,7 @@ const styles = StyleSheet.create({
     button:{
         backgroundColor:'#222831',
         width:100,
-        marginTop:10,
+        marginTop:20,
         alignSelf:'center',
         height:40,
     },
@@ -214,5 +202,30 @@ const styles = StyleSheet.create({
         borderColor:'#32e0c4',
         width:300,
         color:"#eeeeee",
+    },
+    backTextWhite: {
+        color: '#FFF',
+        fontWeight:'bold',
+        fontSize:15
+    },
+    rowBack: {
+        alignItems: 'center',
+        backgroundColor: '#29b6f6',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingLeft: 15,
+    },
+    backRightBtn: {
+        alignItems: 'center',
+        bottom: 0,
+        justifyContent: 'center',
+        position: 'absolute',
+        top: 0,
+        width: 100,
+    },
+    backRightBtnRight: {
+        backgroundColor: '#29b6f6',
+        right: 0,
     },
 })

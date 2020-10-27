@@ -3,7 +3,7 @@ import * as firebase from 'firebase';
 import db from '../config'
 
 import { StyleSheet, Text, View, Modal, ScrollView, FlatList, TextInput , Image, TouchableOpacity, Alert, KeyboardAvoidingView} from 'react-native';
-import { ListItem, Header, Icon } from 'react-native-elements';
+import { ListItem, Header, Icon, Badge } from 'react-native-elements';
 
 
 
@@ -23,10 +23,38 @@ export default class ItemDetailScreen extends React.Component{
             itemAdderAddress:'',
             itemDocID:'',
             itemAdderEmail:'',
-            
+            currentUsername : '',
+            value:'',
         }
     }
 
+    getCurrentUsername = () => {
+        const currentUserID = this.state.currentUserID
+        const query = db.collection('users').where("email","==",currentUserID).get().then(snapshot => {
+            snapshot.forEach((doc)=>{
+                var data = doc.data();
+                this.setState({
+                    currentUsername:data.username,
+                })
+            })
+        })
+        
+    }
+    addNotification = ()=> {
+        const currentUserID = this.state.currentUserID
+        const itemAdderID = this.state.itemAdderID
+        const itemName = this.state.itemName
+        const currentUsername = this.state.currentUsername
+        const message = currentUsername + ' with email as ' + currentUserID + ' is interested in ' + itemName  
+        db.collection('allNotifications').add({
+            'notification_message' : message,
+            'senderID' : currentUserID,
+            'targetedID' : itemAdderID,
+            'notification_status':'unread',
+            'itemName' : itemName
+        })
+        
+    }
     getItemAdderRequest = async ()=>{
         const itemAdderID = this.state.itemAdderID
         const itemID = this.state.itemID
@@ -67,12 +95,15 @@ export default class ItemDetailScreen extends React.Component{
             'itemAdderID' : itemAdderID,
             'itemExchangerID' : itemExchangerID,
             'barterID' : uniqueID,
+            'itemStatus' : 'Other Barter Interested'
         })
     
     }
 
     componentDidMount = ()=> {
+        this.getCurrentUsername()
         this.getItemAdderRequest()
+        console.log('ItemDetail')
     }
 
     render(){
@@ -120,6 +151,7 @@ export default class ItemDetailScreen extends React.Component{
                                         <Text style = {styles.text}>{this.state.itemAdderAddress}</Text>
                                         <TouchableOpacity style = {styles.button} onPress = {()=>{
                                             this.updateBookStatus()
+                                            this.addNotification()
                                         }}>
                                             <Text style = {styles.buttonText}>I want to Exchange</Text>        
                                         </TouchableOpacity>
